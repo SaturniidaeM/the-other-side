@@ -1,0 +1,858 @@
+/* ==========================================================================
+   THE OTHER SIDE — стили
+   ========================================================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'Courier New', Consolas, monospace;
+  user-select: none;
+}
+
+/* -------------------- Canvas -------------------- */
+#game {
+  display: block;
+  width: 100vw; height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: crosshair;
+  background: #000;
+}
+
+/* -------------------- Noise overlay -------------------- */
+#noise-overlay {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.07;
+  mix-blend-mode: screen;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+}
+
+.hidden { display: none !important; }
+
+/* -------------------- HUD -------------------- */
+#hud {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#crosshair {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px; line-height: 1;
+  color: #fff;
+  opacity: .7;
+  text-shadow: 0 0 4px #000;
+}
+
+#interactHint {
+  position: absolute; left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  font-size: 15px;
+  color: #fff;
+  text-shadow: 0 0 8px #000, 0 0 2px #000;
+  letter-spacing: 1.5px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+
+#bottom-left {
+  position: absolute; left: 24px; bottom: 24px;
+  width: 260px;
+}
+
+.bar-wrap {
+  width: 100%; height: 16px;
+  border: 2px solid #fff;
+  background: #111;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.bar {
+  height: 100%; width: 100%;
+  background: #e33a3a;
+  box-shadow: inset 0 0 6px rgba(255,255,255,0.15);
+  transition: width .06s linear;
+}
+
+.bar.mana {
+  background: #3a7be3;
+}
+
+.bar-label {
+  position: absolute; left: 6px; top: -1px;
+  font-size: 10px; letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 1px #000;
+  font-weight: bold;
+  line-height: 16px;
+}
+
+#bottom-right {
+  position: absolute; right: 24px; bottom: 24px;
+  text-align: right;
+}
+
+#ammo {
+  font-size: 30px; letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 0 0 6px #000;
+}
+
+#spell {
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  line-height: 1.7;
+  color: #ccc;
+  opacity: .75;
+}
+
+#spell .active {
+  color: #fff;
+  opacity: 1;
+  font-weight: bold;
+}
+
+/* -------------------- Диалог (VN) -------------------- */
+#vnContainer {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.portrait-wrapper {
+  position: absolute;
+  left: 20px;
+  bottom: 0;
+  width: 300px;
+  height: 300px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  filter: drop-shadow(0 0 12px rgba(0,0,0,0.9));
+  pointer-events: none;
+}
+
+#dialogueBox {
+  position: absolute;
+  bottom: 20px;
+  left: 340px;
+  right: 20px;
+  width: auto;
+  max-width: none;
+  transform: none;
+  min-height: 130px;
+  background: rgba(5, 5, 10, 0.95);
+  border: 3px solid #fff;
+  padding: 26px 32px;
+  pointer-events: auto;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px #000, 0 0 24px rgba(255,255,255,0.06);
+}
+
+#dialogueName {
+  position: absolute;
+  top: -16px; left: 28px;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 4px 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 3px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#dialogueText {
+  font-size: 19px;
+  line-height: 1.55;
+  letter-spacing: 0.5px;
+  margin-top: 12px;
+  color: #eee;
+  min-height: 60px;
+}
+
+#dialogueContinue {
+  position: absolute;
+  bottom: 8px; right: 20px;
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1px;
+  animation: blink 1.1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* -------------------- Кнопка пропуска -------------------- */
+.skip-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 101;
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #fff;
+  background: rgba(5, 5, 10, 0.85);
+  border: 2px solid #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .12s, color .12s, transform .12s, box-shadow .12s;
+  box-shadow: 0 0 0 1px #000, 0 0 16px rgba(255,255,255,0.08);
+}
+
+.skip-btn:hover {
+  background: #fff;
+  color: #000;
+  transform: scale(1.03);
+  box-shadow: 0 0 0 1px #000, 0 0 24px rgba(255,255,255,0.25);
+}
+
+.skip-btn:active {
+  transform: scale(0.97);
+}
+
+/* -------------------- Обучающие подсказки -------------------- */
+#tutorialBox {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 360px;
+  background: rgba(5, 5, 10, 0.92);
+  border: 2px solid #fff;
+  padding: 20px 22px;
+  border-radius: 4px;
+  z-index: 50;
+  box-shadow: 0 0 0 1px #000, 0 0 20px rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+
+#tutorialName {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 2px 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+#tutorialText {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #ddd;
+  margin-top: 4px;
+  min-height: 40px;
+}
+
+/* -------------------- Меню (Общие стили) -------------------- */
+.menu-overlay {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, .95);
+  z-index: 20;
+  overflow: hidden;
+}
+
+.menu-overlay::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.08;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+}
+
+.menu-overlay h1 {
+  font-size: 56px;
+  letter-spacing: 12px;
+  font-weight: normal;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 24px rgba(255,255,255,.25);
+  margin-bottom: 10px;
+}
+
+.menu-overlay p {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: #ccc;
+  opacity: .5;
+  margin-bottom: 20px;
+}
+
+.menu-btn {
+  padding: 14px 60px;
+  font-family: inherit;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: #fff;
+  background: #000;
+  border: 2px solid #fff;
+  cursor: pointer;
+  transition: background .12s, color .12s, transform .12s;
+  width: 300px;
+}
+
+.menu-btn:hover  { background: #fff; color: #000; transform: scale(1.02); }
+.menu-btn:active { transform: scale(0.98); }
+
+#settingsMenu h1 {
+  font-size: 48px;
+  letter-spacing: 8px;
+}
+
+.settings-container {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0a0a0a;
+  border: 2px solid #333;
+  padding: 12px 20px;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+.setting-row:focus-within {
+  border-color: #fff;
+}
+
+.setting-row label {
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 1px 1px 0px #000;
+}
+
+.custom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-block;
+  width: 200px;
+  height: 6px;
+  background: #222;
+  border: 1px solid #555;
+  border-radius: 4px;
+  outline: none;
+  vertical-align: middle;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: #fff;
+  cursor: pointer;
+  border: 2px solid #000;
+  box-shadow: 0 0 4px rgba(255,255,255,0.5);
+  transition: transform 0.1s;
+}
+
+.custom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.custom-select {
+  width: 200px;
+  padding: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  background: #000;
+  color: #fff;
+  border: 2px solid #555;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.custom-select:focus, .custom-select:hover {
+  border-color: #fff;
+}
+
+.custom-select option {
+  background: #000;
+  color: #fff;
+}
+
+.custom-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #000;
+  border: 2px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.custom-checkbox:hover, .custom-checkbox:checked {
+  border-color: #fff;
+}
+
+.custom-checkbox:checked::after {
+  content: 'X';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: bold;
+  color: #fff;
+}
+
+.custom-btn {
+  margin-top: 30px;
+}
+/* -------------------- Экран проигрыша -------------------- */
+#gameOverScreen h1 {
+  color: #e33a3a;
+  text-shadow: 0 0 30px rgba(227, 58, 58, 0.6), 0 0 60px rgba(227, 58, 58, 0.3);
+  animation: deathPulse 2s ease-in-out infinite;
+}
+
+@keyframes deathPulse {
+  0%, 100% { text-shadow: 0 0 30px rgba(227, 58, 58, 0.6), 0 0 60px rgba(227, 58, 58, 0.3); }
+  50%      { text-shadow: 0 0 40px rgba(227, 58, 58, 0.85), 0 0 80px rgba(227, 58, 58, 0.5); }
+}
+
+#gameOverScreen p {
+  color: #e33a3a;
+  opacity: 0.65;
+}
+/* -------------------- BOSS BAR -------------------- */
+#bossBar {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  max-width: 800px;
+  z-index: 15;
+  pointer-events: none;
+  text-align: center;
+}
+
+#bossName {
+  display: block;
+  font-size: 18px;
+  letter-spacing: 6px;
+  color: #fff;
+  text-shadow: 0 0 12px #000, 0 0 24px rgba(255,255,255,0.35);
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+#bossHpBar {
+  width: 100%;
+  height: 18px;
+  border: 2px solid #fff;
+  background: rgba(5, 5, 10, 0.85);
+  box-shadow: 0 0 0 1px #000, 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+#bossHpFill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #4a0000, #e33a3a);
+  transition: width 0.15s linear;
+}
+
+/* -------------------- QTE PANEL -------------------- */
+#qtePanel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  pointer-events: none;
+  text-align: center;
+  min-width: 400px;
+  background: rgba(5, 5, 10, 0.92);
+  border: 3px solid #fff;
+  padding: 30px 40px;
+  box-shadow: 0 0 0 2px #000, 0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+#qteTitle {
+  font-size: 32px;
+  letter-spacing: 8px;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 12px #000;
+}
+
+#qteKeys {
+  font-size: 48px;
+  letter-spacing: 4px;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 20px #000;
+}
+
+#qteTimerBar {
+  width: 100%;
+  height: 14px;
+  border: 2px solid #fff;
+  background: #111;
+  overflow: hidden;
+}
+
+#qteTimerFill {
+  height: 100%;
+  width: 100%;
+  background: #e33a3a;
+  transition: width 0.05s linear;
+}
+
+/* -------------------- SHAKE (QTE) -------------------- */
+#game.shake {
+  animation: shakeAnim 0.05s infinite;
+}
+
+@keyframes shakeAnim {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2px, 1px); }
+  50%  { transform: translate(2px, -1px); }
+  75%  { transform: translate(-1px, -2px); }
+  100% { transform: translate(1px, 2px); }
+}
+/* ==========================================================================
+   ФОН ГЛАВНОГО МЕНЮ (bg1.jpg ⇄ bg2.jpg)
+   ========================================================================== */
+#menu {
+  background: transparent;   /* перекрываем .menu-overlay rgba(0,0,0,.95) */
+}
+
+.menu-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;               /* под шумом ::before (z-index: -1) и контентом */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.menu-bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  will-change: opacity;
+  backface-visibility: hidden;
+}
+
+.menu-bg-1 {
+  background-image: url('../assets/bg1.jpg');   /* ИСПРАВЛЕНО */
+  animation: menuBgFade1 12s ease-in-out infinite;
+}
+
+.menu-bg-2 {
+  background-image: url('../assets/bg2.jpg');   /* ИСПРАВЛЕНО */
+  animation: menuBgFade2 12s ease-in-out infinite;
+}
+
+/* затемнение, чтобы текст и кнопки читались на любом фоне */
+.menu-bg-dark {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+@keyframes menuBgFade1 {
+  0%   { opacity: 1; }
+  40%  { opacity: 1; }
+  50%  { opacity: 0; }
+  90%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes menuBgFade2 {
+  0%   { opacity: 0; }
+  40%  { opacity: 0; }
+  50%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ==========================================================================
+   ФОН ЭКРАНА КОНЦА ИГРЫ (end.jpg)
+   ========================================================================== */
+#endGameScreen {
+  background: transparent;
+}
+
+.endgame-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url('../assets/end.jpg');   /* ИСПРАВЛЕНО */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.endgame-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+/* ==========================================================================
+   МОБИЛЬНОЕ УПРАВЛЕНИЕ
+   ========================================================================== */
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE/Edge */
+  user-select: none;         /* Стандарт */
+}
+
+#game, #lookZone, #joystickBase, .mob-btn {
+  touch-action: none;
+}
+
+#mobileControls { display: none; }
+body.is-mobile #mobileControls:not(.hidden) { display: block; }
+
+#mobileControls {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+}
+
+/* --- Зона обзора --- */
+#lookZone {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+/* --- Джойстик --- */
+#joystickBase {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 140px;
+  height: 140px;
+  border: 3px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  background: rgba(0,0,0,0.25);
+  pointer-events: auto;
+  touch-action: none;
+  z-index: 10;
+}
+
+#joystickKnob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(255,255,255,0.25);
+}
+
+/* --- Кнопки --- */
+#mobileButtons {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 78px);
+  grid-template-rows: repeat(2, 78px);
+  gap: 10px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mob-btn {
+  pointer-events: auto;
+  border: 3px solid #fff;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border-radius: 50%;
+  font-family: inherit;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.05s, background 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mob-btn.pressed {
+  background: rgba(255,255,255,0.55);
+  color: #000;
+  transform: scale(0.92);
+}
+
+.mob-btn.primary {
+  background: rgba(180,30,30,0.55);
+  border-color: #ff7070;
+  font-size: 30px;
+}
+.mob-btn.primary.pressed { background: #ff7070; }
+
+.mob-btn.small {
+  font-size: 22px;
+  background: rgba(30,30,30,0.55);
+}
+
+/* --- Кнопка паузы --- */
+#mobilePauseBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  pointer-events: auto;
+  z-index: 12;
+}
+
+/* --- Кнопка взаимодействия --- */
+#btnInteract {
+  position: absolute;
+  bottom: 235px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  padding: 14px 26px;
+  border-radius: 10px;
+  background: rgba(255, 200, 30, 0.92);
+  color: #000;
+  border-color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  z-index: 11;
+}
+
+/* --- Предупреждение об ориентации --- */
+#orientationWarning {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  color: #fff;
+  z-index: 9999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: 20px;
+  letter-spacing: 3px;
+  text-align: center;
+  padding: 20px;
+}
+.orient-icon {
+  font-size: 64px;
+  animation: rotateHint 2s ease-in-out infinite;
+}
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(90deg); }
+}
+
+@media (orientation: portrait) {
+  body.is-mobile #orientationWarning:not(.hidden) { display: flex; }
+}
+
+/* --- Мобильная адаптация HUD --- */
+@media (max-width: 900px), (pointer: coarse) {
+  #bottom-left { width: 200px; left: 16px; bottom: 200px; }
+  .bar-wrap { height: 14px; }
+  .bar-label { font-size: 9px; }
+
+  #bottom-right {
+    right: 16px;
+    bottom: 210px;
+  }
+  #ammo { font-size: 22px; }
+  #spell { font-size: 11px; }
+
+  #bossBar { width: 90%; top: 16px; }
+  #bossName { font-size: 14px; letter-spacing: 3px; }
+
+  #tutorialBox {
+    width: 260px;
+    left: 12px;
+    right: auto;
+    top: 80px;
+    bottom: auto;
+    font-size: 12px;
+    padding: 14px 16px;
+  }
+  #tutorialName { font-size: 10px; padding: 2px 10px; }
+  #tutorialText { font-size: 12px; }
+
+  .menu-overlay h1 { font-size: 32px; letter-spacing: 6px; }
+  .menu-btn { padding: 12px 30px; width: 260px; font-size: 16px; letter-spacing: 2px; }
+  .settings-container { width: 92vw; max-width: 460px; }
+  .custom-slider { width: 45%; }
+
+  .portrait-wrapper { display: none; }
+  #dialogueBox { left: 16px; right: 16px; bottom: 16px; min-height: 110px; padding: 22px 18px; }
+  #dialogueText { font-size: 16px; }
+
+  #qtePanel { min-width: 280px; padding: 20px 24px; }
+  #qteTitle { font-size: 22px; }
+  #qteKeys { font-size: 36px; }
+}
